@@ -8,7 +8,7 @@
 </script>
 
 <div class="grid items-center max-w-sm h-[calc(100vh-48px)] m-auto">
-	<div>
+	<div class="bg-base-200 p-6 rounded-md w-96">
 		<h1>You Key</h1>
 		<p class="mb-4 text-base-content/70">Enter your key</p>
 		<form action="?/set-key" method="post" use:enhance class="flex gap-4">
