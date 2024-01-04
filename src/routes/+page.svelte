@@ -2,7 +2,7 @@
 	import type { PageData } from './$types'
 	import { enhance } from '$app/forms'
 	import AccountRow from './AccountRow.svelte'
-	import { RefreshCwIcon } from 'svelte-feather-icons'
+	import { RefreshCwIcon, KeyIcon, LogOutIcon } from 'svelte-feather-icons'
 
 	export let data: PageData
 
@@ -33,9 +33,9 @@
 	<div class="flex items-center gap-2 ml-auto">
 		{#if data.user}
 			<span>{data.user.email}</span>
-			<a class="btn btn-ghost" href="/set-key">Key</a>
+			<a class="btn btn-ghost" href="/set-key"><KeyIcon size="15" /> Key</a>
 			<form action="?/logout" method="post" use:enhance>
-				<button class="btn btn-link">Logout</button>
+				<button class="btn btn-link"><LogOutIcon size="15" /> Logout</button>
 			</form>
 		{/if}
 	</div>

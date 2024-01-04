@@ -6,7 +6,8 @@
 </script>
 
 <div class="grid items-center max-w-sm h-[calc(100vh-48px)] m-auto">
-	<div class="bg-base-200 p-6 rounded-md">
+	<div class="bg-base-200 p-6 rounded-md relative">
+		<img src="/koda.png" alt="" class="absolute z-[-1] top-[-230px]" />
 		<h1>Welcome Back</h1>
 		<p class="mb-4 text-base-content/70">Sign in to your account</p>
 		<form method="post" use:enhance>
