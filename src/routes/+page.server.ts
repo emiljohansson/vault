@@ -46,9 +46,8 @@ export const actions = {
 		const formData = await request.formData()
 		const key = getKey(cookies)
 		const password = formData.get('password') as string
-		console.log({ secret: key, password })
-
 		const supabase = createClient(cookies)
+
 		const {
 			data: { user },
 		} = await supabase.auth.getUser()

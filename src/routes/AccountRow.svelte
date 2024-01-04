@@ -16,12 +16,10 @@
 	let showPlaintext = false
 
 	const onPlaintextSubmit = () => {
-		console.log('1')
 		state = 'loading'
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		return async ({ result }: { result: any }) => {
-			console.log('2', result)
 			if (result.type === 'failure') {
 				state = 'idle'
 				return
