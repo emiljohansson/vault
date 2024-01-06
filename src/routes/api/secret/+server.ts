@@ -10,16 +10,19 @@ export async function POST({ request, cookies }) {
 	const token = authHeader?.split(' ')[1]
 
 	if (!token) {
-		return json({ message: 'Unauthorized' }, { status: 401 })
+		return json({ data: null, message: 'Unauthorized' }, { status: 401 })
 	}
 	const supabase = createClient(cookies)
 	const { error } = await supabase.auth.getUser(token)
 	if (error) {
-		return json({ message: 'Unauthorized' }, { status: 401 })
+		return json({ data: null, message: 'Unauthorized' }, { status: 401 })
 	}
 
-	const { password } = await request.json()
-	const result = AES.decrypt(password, ENCRYPT_SECRET).toString(enc.Utf8)
-
-	return json({ data: result }, { status: 201 })
+	try {
+		const { password } = await request.json()
+		const result = AES.decrypt(password, ENCRYPT_SECRET).toString(enc.Utf8)
+		return json({ data: result }, { status: 201 })
+	} catch (error) {
+		return json({ data: null, message: 'Failed to decrypt' }, { status: 400 })
+	}
 }

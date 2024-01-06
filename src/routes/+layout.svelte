@@ -4,7 +4,7 @@
 </script>
 
 <header></header>
-<main class="p-6">
+<main class="p-6 h-full">
 	<slot />
 </main>
 <footer></footer>

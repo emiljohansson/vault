@@ -5,9 +5,19 @@
 	export let form
 </script>
 
-<div class="grid items-center max-w-sm h-[calc(100vh-48px)] m-auto">
-	<div class="bg-base-200 p-6 rounded-md relative">
-		<img src="/koda.png" alt="" class="absolute z-[-1] top-[-230px]" />
+<div class="flex items-center gap-6 h-full">
+	<div
+		class="
+		bg-base-200
+		grid items-center
+		rounded-2xl
+		h-full
+		p-6
+	"
+	>
+		<img src="/koda.png" alt="" />
+	</div>
+	<div class="max-w-sm">
 		<h1>Welcome Back</h1>
 		<p class="mb-4 text-base-content/70">Sign in to your account</p>
 		<form method="post" use:enhance>
