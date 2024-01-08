@@ -16,9 +16,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		redirect(302, '/login')
 	}
 
-	const key = AES.decrypt(cookies.get('key') ?? '', ENCRYPT_SECRET).toString(
-		enc.Utf8,
-	)
+	const key = AES.decrypt(cookies.get('key') ?? '', ENCRYPT_SECRET).toString(enc.Utf8)
 
 	return { key }
 }
@@ -26,10 +24,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 export const actions = {
 	'set-key': async ({ request, cookies }) => {
 		const formData = await request.formData()
-		const key = AES.encrypt(
-			formData.get('key') as string,
-			ENCRYPT_SECRET,
-		).toString()
+		const key = AES.encrypt(formData.get('key') as string, ENCRYPT_SECRET).toString()
 
 		cookies.set('key', key, {
 			path: '/',

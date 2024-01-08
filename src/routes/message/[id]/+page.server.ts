@@ -11,12 +11,18 @@ export const load: PageServerLoad = async ({ params }) => {
 
 export const actions = {
 	'decrypt-message': async ({ request, cookies, params }) => {
+		if (!params.id) {
+			return {
+				success: false,
+				error: 'No message id',
+			}
+		}
 		const formData = await request.formData()
 		const json = Object.fromEntries(formData)
 		const password = json.password as string
 		const supabase = createClient(cookies)
 		const { data, error } = await supabase.from('message').select('*').eq('id', params.id).single()
-		if (error) {
+		if (error || !data.encrypted) {
 			return { status: 500, body: error }
 		}
 		try {

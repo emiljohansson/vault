@@ -1,11 +1,10 @@
 import type { PageServerLoad } from './$types'
-import type { Account } from '$lib/types'
 import { redirect, type Actions, fail, type Cookies } from '@sveltejs/kit'
-import pkg from 'crypto-js'
+import CryptoJS from 'crypto-js'
 import { ENCRYPT_SECRET } from '$env/static/private'
 import { createClient } from '$lib/supabaseClient'
 
-const { AES, enc } = pkg
+const { AES, enc } = CryptoJS
 
 function getKey(cookies: Cookies) {
 	const key = cookies.get('key')
@@ -33,7 +32,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	return {
 		user,
 		key,
-		accounts: (data ?? []) as Account[],
+		accounts: data ?? [],
 	}
 }
 
@@ -78,6 +77,11 @@ export const actions = {
 		const {
 			data: { user },
 		} = await supabase.auth.getUser()
+
+		if (!user) {
+			return fail(400)
+		}
+
 		const { data: keysData } = await supabase
 			.from('key')
 			.select('id')

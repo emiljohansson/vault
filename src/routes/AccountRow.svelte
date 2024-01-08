@@ -1,10 +1,10 @@
 <script lang="ts">
-	import type { Account } from '$lib/types'
+	import type { Tables } from '../database.types'
 	import { enhance } from '$app/forms'
 	import { EyeIcon, EyeOffIcon } from 'svelte-feather-icons'
 	import CopyButton from './CopyButton.svelte'
 
-	export let account: Account
+	export let account: Tables<'account'>
 
 	const revealStates = ['idle', 'loading', 'revealed'] as const
 	type RevealState = (typeof revealStates)[number]
