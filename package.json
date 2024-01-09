@@ -39,5 +39,9 @@
 		"typescript": "5.3.3",
 		"vite": "5.0.3"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"@vercel/analytics": "1.1.1",
+		"redis": "4.6.12"
+	}
 }
