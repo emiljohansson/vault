@@ -30,11 +30,10 @@ export const actions: Actions = {
 		}
 		const supabase = createClient(cookies)
 
-		const { error, data } = await supabase.auth.signInWithPassword({
+		const { error } = await supabase.auth.signInWithPassword({
 			email,
 			password,
 		})
-		console.log({ error, data })
 		if (error) {
 			return fail(400, {
 				error: error.message,

@@ -1,18 +1,11 @@
 import type { PageServerLoad } from './$types'
-import { redirect, type Actions, fail, type Cookies } from '@sveltejs/kit'
+import { redirect, type Actions, fail } from '@sveltejs/kit'
 import CryptoJS from 'crypto-js'
 import { ENCRYPT_SECRET } from '$env/static/private'
 import { createClient } from '$lib/supabaseClient'
+import { decryptPassword, encryptPassword } from '$lib/password'
 
 const { AES, enc } = CryptoJS
-
-function getKey(cookies: Cookies) {
-	const key = cookies.get('key')
-	if (!key) {
-		return null
-	}
-	return AES.decrypt(key, ENCRYPT_SECRET).toString(enc.Utf8)
-}
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const supabase = createClient(cookies)
@@ -28,10 +21,10 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		.from('account')
 		.select('*')
 		.eq('user_id', user?.id)
-	const key = getKey(cookies)
+	const masterKey = cookies.get('key')
 	return {
 		user,
-		key,
+		key: masterKey,
 		accounts: data ?? [],
 	}
 }
@@ -43,7 +36,7 @@ export const actions = {
 	},
 	plaintext: async ({ request, cookies }) => {
 		const formData = await request.formData()
-		const key = getKey(cookies)
+		const masterKey = cookies.get('key')
 		const password = formData.get('password') as string
 		const supabase = createClient(cookies)
 
@@ -51,13 +44,24 @@ export const actions = {
 			data: { user },
 		} = await supabase.auth.getUser()
 
-		if (!key || !user) {
+		if (!masterKey || !user) {
+			return fail(400)
+		}
+
+		const { data } = await supabase
+			.from('account')
+			.select('key')
+			.eq('user_id', user.id)
+			.eq('password', password)
+			.single()
+
+		if (!data?.key) {
 			return fail(400)
 		}
 
 		const step3 = AES.decrypt(password, ENCRYPT_SECRET).toString(enc.Utf8)
 		const step2 = AES.decrypt(step3, user?.id || '').toString(enc.Utf8)
-		const step1 = AES.decrypt(step2, key).toString(enc.Utf8)
+		const step1 = decryptPassword(masterKey, step2, data.key)
 
 		if (!step1) {
 			return fail(400)
@@ -70,31 +74,18 @@ export const actions = {
 		const website = formData.get('website') as string
 		const username = formData.get('username') as string
 		const password = formData.get('password') as string
-		const key = getKey(cookies)
-		console.log({ website, username, password, secret: key })
-
+		const masterKey = cookies.get('key')
 		const supabase = createClient(cookies)
 		const {
 			data: { user },
 		} = await supabase.auth.getUser()
 
-		if (!user) {
+		if (!user || !masterKey) {
 			return fail(400)
 		}
 
-		const { data: keysData } = await supabase
-			.from('key')
-			.select('id')
-			.eq('user_id', user?.id)
-			.single()
-		const keyId = keysData?.id
-
-		if (!key || key !== keyId) {
-			return fail(400)
-		}
-
-		const step1 = AES.encrypt(password, key).toString()
-		const step2 = AES.encrypt(step1, user?.id || '').toString()
+		const encryptedPassword = encryptPassword(masterKey, password)
+		const step2 = AES.encrypt(encryptedPassword.password, user?.id || '').toString()
 		const step3 = AES.encrypt(step2, ENCRYPT_SECRET).toString()
 
 		const { data } = await supabase.from('account').insert([
@@ -102,6 +93,7 @@ export const actions = {
 				website,
 				username,
 				password: step3,
+				key: encryptedPassword.key,
 				user_id: user?.id,
 			},
 		])
