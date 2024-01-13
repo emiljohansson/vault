@@ -50,18 +50,18 @@ export const actions = {
 
 		const { data } = await supabase
 			.from('account')
-			.select('key')
+			.select('salt')
 			.eq('user_id', user.id)
 			.eq('password', password)
 			.single()
 
-		if (!data?.key) {
+		if (!data?.salt) {
 			return fail(400)
 		}
 
 		const step3 = AES.decrypt(password, ENCRYPT_SECRET).toString(enc.Utf8)
 		const step2 = AES.decrypt(step3, user?.id || '').toString(enc.Utf8)
-		const step1 = decryptPassword(masterKey, step2, data.key)
+		const step1 = decryptPassword(masterKey, step2, data.salt)
 
 		if (!step1) {
 			return fail(400)
@@ -93,7 +93,7 @@ export const actions = {
 				website,
 				username,
 				password: step3,
-				key: encryptedPassword.key,
+				salt: encryptedPassword.salt,
 				user_id: user?.id,
 			},
 		])

@@ -1,23 +1,24 @@
 import CryptoJS from 'crypto-js'
+import crypto from 'crypto'
 
 // Assume derivedKey is obtained using PBKDF2-HMAC-SHA256 during user authentication
 export function pbkdf2HmacSha256(
 	password: string,
-	salt: CryptoJS.lib.WordArray,
+	salt: string,
 	iterations: number,
 	keyLength: number,
 ) {
 	const key = CryptoJS.PBKDF2(password, salt, {
 		keySize: keyLength / 32,
-		iterations: iterations,
+		iterations,
 		hasher: CryptoJS.algo.SHA256,
 	})
 
 	return key.toString(CryptoJS.enc.Hex)
 }
 
-function generateRandomKey() {
-	return CryptoJS.lib.WordArray.random(256 / 8).toString()
+function generateSalt() {
+	return crypto.randomBytes(16).toString('hex')
 }
 
 function decryptWithKey(ciphertext: string, key: string) {
@@ -30,26 +31,19 @@ function encryptWithKey(plaintext: string, key: string) {
 
 // Encrypt a new password entry
 export function encryptPassword(masterKey: string, plaintextPassword: string) {
-	const encryptionKey = generateRandomKey() // Generate a random key for encrypting the password
-	const encryptedPassword = encryptWithKey(plaintextPassword, encryptionKey)
+	const salt = generateSalt() // Generate a random key for encrypting the password
+	const encryptedPassword = encryptWithKey(plaintextPassword, salt)
 
 	// Store the encryptedPassword and other data securely, along with the encrypted encryptionKey
 	return {
 		password: encryptedPassword,
-		key: encryptWithKey(encryptionKey, masterKey),
+		salt: encryptWithKey(salt, masterKey),
 	}
 }
 
 // Decrypt a stored password entry
-export function decryptPassword(
-	masterKey: string,
-	encryptedPassword: string,
-	encryptedEncryptionKey: string,
-) {
-	const encryptionKey = decryptWithKey(encryptedEncryptionKey, masterKey)
-
-	// Use encryptionKey to decrypt storedData.encryptedPassword and retrieve the plaintext password
+export function decryptPassword(masterKey: string, encryptedPassword: string, salt: string) {
+	const encryptionKey = decryptWithKey(salt, masterKey)
 	const plaintextPassword = decryptWithKey(encryptedPassword, encryptionKey)
-
 	return plaintextPassword
 }
