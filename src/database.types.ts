@@ -39,8 +39,8 @@ export interface Database {
           created_at: string | null
           id: number
           is_dev: boolean | null
-          key: string | null
           password: string
+          salt: string
           user_id: string
           username: string | null
           website: string
@@ -49,8 +49,8 @@ export interface Database {
           created_at?: string | null
           id?: number
           is_dev?: boolean | null
-          key?: string | null
           password: string
+          salt: string
           user_id: string
           username?: string | null
           website: string
@@ -59,8 +59,8 @@ export interface Database {
           created_at?: string | null
           id?: number
           is_dev?: boolean | null
-          key?: string | null
           password?: string
+          salt?: string
           user_id?: string
           username?: string | null
           website?: string
@@ -72,18 +72,21 @@ export interface Database {
           created_at: string
           id: string
           note: string | null
+          salt: string | null
           user_id: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           note?: string | null
+          salt?: string | null
           user_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           note?: string | null
+          salt?: string | null
           user_id?: string | null
         }
         Relationships: []
