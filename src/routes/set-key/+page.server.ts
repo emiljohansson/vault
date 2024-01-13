@@ -1,10 +1,8 @@
 import { redirect, type Actions } from '@sveltejs/kit'
 import type { PageServerLoad } from './$types'
-import { ENCRYPT_SECRET } from '$env/static/private'
-import pkg from 'crypto-js'
+import CryptoJS from 'crypto-js'
 import { createClient } from '$lib/supabaseClient'
-
-const { AES, enc } = pkg
+import { pbkdf2HmacSha256 } from '$lib/password'
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const supabase = createClient(cookies)
@@ -15,18 +13,18 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	if (!user) {
 		redirect(302, '/login')
 	}
-
-	const key = AES.decrypt(cookies.get('key') ?? '', ENCRYPT_SECRET).toString(enc.Utf8)
-
-	return { key }
 }
 
 export const actions = {
 	'set-key': async ({ request, cookies }) => {
 		const formData = await request.formData()
-		const key = AES.encrypt(formData.get('key') as string, ENCRYPT_SECRET).toString()
+		const enteredKey = formData.get('key') as string
+		const salt = CryptoJS.lib.WordArray.random(16) // Generate a random 128-bit salt
+		const iterations = 10000 // You can adjust the number of iterations based on your security requirements
+		const keyLength = 256 // Desired key length in bits
+		const derivedKey = pbkdf2HmacSha256(enteredKey, salt, iterations, keyLength)
 
-		cookies.set('key', key, {
+		cookies.set('key', derivedKey, {
 			path: '/',
 			sameSite: 'strict',
 			secure: false,
