@@ -39,6 +39,7 @@ export interface Database {
           created_at: string | null
           id: number
           is_dev: boolean | null
+          key: string | null
           password: string
           user_id: string
           username: string | null
@@ -48,6 +49,7 @@ export interface Database {
           created_at?: string | null
           id?: number
           is_dev?: boolean | null
+          key?: string | null
           password: string
           user_id: string
           username?: string | null
@@ -57,6 +59,7 @@ export interface Database {
           created_at?: string | null
           id?: number
           is_dev?: boolean | null
+          key?: string | null
           password?: string
           user_id?: string
           username?: string | null
